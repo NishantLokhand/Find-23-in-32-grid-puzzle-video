@@ -35,11 +35,11 @@ jobs:
         run: |
           ffmpeg -i video.mp4 || true
 
-      - name: Start Stream (FULL DEBUG)
+      - name: Start YouTube Stream
         run: |
-          ffmpeg -loglevel verbose -re -stream_loop -1 -i video.mp4 \
-          -vf "scale=1280:720,fps=30" \
-          -c:v libx264 -preset veryfast -b:v 2500k \
-          -pix_fmt yuv420p -g 60 \
-          -c:a aac -b:a 128k \
-          -f flv rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}
+            ffmpeg -re -stream_loop -1 -i video.mp4 \
+            -vf "scale=854:480,fps=25" \
+            -c:v libx264 -preset ultrafast -b:v 1200k \
+            -pix_fmt yuv420p -g 50 \
+            -c:a aac -b:a 96k \
+            -f flv rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}
