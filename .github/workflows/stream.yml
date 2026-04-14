@@ -16,11 +16,13 @@ jobs:
       - name: Debug files
         run: ls -lh
 
-      - name: Install FFmpeg (fallback)
+      - name: Download FFmpeg (prebuilt)
         run: |
-             sudo apt-get update -y || true
-             sudo apt-get install -y ffmpeg || true
-             ffmpeg -version
+          curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o ffmpeg.tar.xz
+          tar -xvf ffmpeg.tar.xz
+          cd ffmpeg-*-amd64-static
+          sudo mv ffmpeg /usr/local/bin/
+          sudo mv ffprobe /usr/local/bin/
 
       - name: Verify FFmpeg
         run: ffmpeg -version
