@@ -1,30 +1,29 @@
 name: YouTube Live Stream
 
 on:
-  workflow_dispatch:   # manual run button
+  workflow_dispatch:
   schedule:
-    - cron: "0 */5 * * *"   # runs every 5 hours
+    - cron: "0 */5 * * *"
 
 jobs:
   stream:
     runs-on: ubuntu-latest
 
     steps:
-      # Step A: Download your repo files
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Step B: Install FFmpeg (streaming engine)
+      - name: Debug files
+        run: ls -lh
+
       - name: Install FFmpeg
-        run: |
-          sudo apt update
-          sudo apt install -y ffmpeg
+        run: sudo apt update && sudo apt install -y ffmpeg
 
-      # Step C: Start streaming to YouTube
       - name: Start YouTube Stream
         run: |
           ffmpeg -re -stream_loop -1 -i video.mp4 \
-          -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k \
+          -vf "scale=1280:720" \
+          -c:v libx264 -preset veryfast -b:v 2500k \
           -pix_fmt yuv420p -g 50 \
-          -c:a aac -b:a 128k \
+          -an \
           -f flv rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}
