@@ -2,8 +2,6 @@ name: YouTube Live Stream
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 */5 * * *"
 
 jobs:
   stream:
@@ -13,23 +11,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Debug files
-        run: ls -lh
+      - name: List files (VERY IMPORTANT)
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files:"
+          ls -al
 
-      - name: Download FFmpeg (prebuilt)
+      - name: Download FFmpeg (static)
         run: |
           curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o ffmpeg.tar.xz
-          tar -xvf ffmpeg.tar.xz
+          tar -xf ffmpeg.tar.xz
           cd ffmpeg-*-amd64-static
-          sudo mv ffmpeg /usr/local/bin/
-          sudo mv ffprobe /usr/local/bin/
+          sudo cp ffmpeg /usr/bin/
+          sudo cp ffprobe /usr/bin/
 
       - name: Verify FFmpeg
-        run: ffmpeg -version
-
-      - name: Start YouTube Stream
         run: |
-          ffmpeg -re -stream_loop -1 -i video.mp4 \
+          which ffmpeg
+          ffmpeg -version
+
+      - name: Test video file
+        run: |
+          ffmpeg -i video.mp4 || true
+
+      - name: Start Stream (FULL DEBUG)
+        run: |
+          ffmpeg -loglevel verbose -re -stream_loop -1 -i video.mp4 \
           -vf "scale=1280:720,fps=30" \
           -c:v libx264 -preset veryfast -b:v 2500k \
           -pix_fmt yuv420p -g 60 \
